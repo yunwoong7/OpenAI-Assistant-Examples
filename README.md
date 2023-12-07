@@ -1,2 +1,59 @@
-# OpenAI-Assistant-Examples
-This repository is a collection of example codes demonstrating how to create various AI assistants using the OpenAI Assistants API.
+<h2 align="center">
+OpenAI-Assistant-Examples
+</h2>
+
+<div align="center">
+  <img src="https://img.shields.io/badge/python-v3.9.18-blue.svg"/>
+  <img src="https://img.shields.io/badge/openai-v1.2.2-blue.svg"/>
+</div>
+
+OpenAI의 API를 활용하는 개발자 수가 200만 명을 넘어섰습니다. 이제 새로운 기술이 형성되고 활용되는 방식에 중대한 변화가 일어나고 있음이 분명해졌습니다.
+
+지난 2023년 11월 6일에 있었던 OpenAI의 첫 개발자 컨퍼런스인 DevDay는 AI의 발전과 도구들에 대한 최신 정보를 소개하는 자리였습니다. 이 중에서도 특히 주목할 만한 것은 지능적이고 반응적인 AI 어시스턴트를 구축할 수 있는 OpenAI Assistants API였습니다. 이 API는 현재 AI 기술을 적용하고 이해하는 방식에 있어 중요한 역할을 하고 있으며, 개발자들에게 새로운 가능성을 열어주고 있습니다.
+
+![img](https://blog.kakaocdn.net/dn/0Kwe7/btsBySxMxmQ/KsE0qLQUud84xh5pkXlVu0/img.gif)
+
+
+경험이 풍부한 개발자든, 이제 막 시작한 초보 개발자든, 오늘날의 기술 환경에서 OpenAI Assistants API를 이해하고 활용하는 것은 중요합니다.
+
+이제 이 강력한 도구, OpenAI Assistants API를 활용하여 어떻게 시작하는지 알아보겠습니다.
+
+------
+
+### #1. Assistants API란?
+
+OpenAI의 Assistants API는 애플리케이션 내에 AI 기반 어시스턴트를 만들 수 있는 Toolkit입니다. Assistants API를 이용하면 단순히 사용자 질문에 대한 답변하는 메커니즘을 넘어설 수 있습니다.
+
+Assistants API는 현재 베타 단계에 있으며, 코드 해석기(Code Interpreter), 검색(Retrieval), 기능 호출(Function calling)과 같은 Tool을 이용하여 AI의 상호작용 능력을 향상할 수 있습니다. 개발자들은 이러한 Tool을 이용하여 사용자의 요구사항을 이해하고, 반응을 예측하며, 상호작용적으로 참여하는 AI 어시스턴트를 구축할 수 있습니다. 기업들은 이러한 어시스턴트를 특정 목적에 맞게 맞춤 설정하고 해당 용도에 필요한 관련 데이터를 제공할 수 있습니다. 예를 들어, 날씨 관련 정보를 제공하는 AI 날씨 어시스턴트나 여행 관련 질문에 답변하는 AI 여행 어시스턴트 등이 있습니다.
+
+이 어시스턴트들은 상태 유지(statefulness)에 중점을 두고 설계되었습니다. 즉, 이들은 이전의 대화 내용을 상당 부분 기억하고 있어, 개발자들은 상태 관리에 대한 걱정 없이 이 부분을 OpenAI에 맡길 수 있습니다.
+
+일반적인 흐름은 다음과 같습니다.
+
+![img](https://blog.kakaocdn.net/dn/bWiICt/btsBuzmlDJ9/GNojtWakhIppFjK0KUUCZk/img.png)
+
+- Assistant 생성: 사용자 정의 지침(custom instructions)을 정의하고 사용할 모델을 선택합니다. 필요하다면 Code Interpreter, Retrieval, Function calling과 같은 도구들을 활성화할 수 있습니다.
+- Thread 생성: Thread는 사용자의 Message와 어시스턴트의 답변을 저장합니다. Thread는 어시스턴트의 상태를 관리하는 역할을 하며 OpenAI가 관리합니다.
+- Thread에 Message 추가: 사용자가 AI 어시스턴트에게 입력한 Message나 어시스턴트의 답변을 추가합니다.
+- 해당 Thread에서 어시스턴트 실행(Run): Thread에서 어시스턴트를 실행하여 사용자에게 제공할 답변을 생성합니다. 이 과정에서 관련 도구들이 자동으로 호출됩니다.
+
+------
+
+### #2. Assistants API의 Tools
+
+**1) 코드 해석기 (Code Interpreter)**
+Code Interpreter는 Assistants API가 격리된 실행 환경에서 Python 코드를 작성하고 실행할 수 있게 해 줍니다. 다양한 데이터와 형식을 가진 파일을 처리할 수 있으며, 데이터와 그래프 이미지가 포함된 파일을 생성할 수 있습니다. Code Interpreter를 통해 어시스턴트는 복잡한 코드와 수학 문제를 해결하기 위해 코드를 반복적으로 실행할 수 있습니다. 만약 어시스턴트가 실행에 실패하는 코드를 작성했다면, 다른 코드를 시도하여 코드 실행이 성공할 때까지 코드를 반복 작성할 수 있습니다.
+
+Code Interpreter는 세션당 $0.03의 비용이 소요됩니다. 예를 들어, 두 개의 다른 Thread에서 동시에 Code Interpreter를 호출할 경우(예: 각 끝 사용자마다 하나의 Thread), 두 개의 Code Interpreter 세션이 생성됩니다. 각 세션은 기본적으로 한 시간 동안 활성 상태이며, 이는 사용자가 한 Thread에서 최대 한 시간 동안 Code Interpreter와 상호작용할 경우 한 세션만을 위해 비용을 지불한다는 것을 의미합니다.
+
+**2) 검색 (Retrieval)**
+검색 도구인 Knowledge Retrieval은 어시스턴트가 모델 외부의 지식을 활용할 수 있게 해 줍니다. 이것은 독점적인 제품 정보나 사용자가 제공한 문서와 같은 것들을 포함할 수 있습니다. 파일이 업로드되어 어시스턴트에 전달되면, OpenAI는 자동으로 문서를 조각내고, 인덱스를 생성하며, 임베딩을 저장합니다. 그리고 벡터 검색을 구현하여 사용자의 질문에 답변할 수 있는 관련 내용을 검색합니다. 이 과정을 통해 어시스턴트는 제공된 데이터 내에서 가장 관련성 높은 정보를 신속하게 찾아내어 사용자의 질문에 대한 정확한 답변을 제공할 수 있습니다. 예를 들어, 제품에 관한 질문이 있을 때, 어시스턴트는 해당 제품의 특징, 사용 방법, 고객 후기 등의 정보를 검색하여 제공할 수 있습니다. 어시스턴트가 단순한 사실을 넘어서 사용자에게 맞춤화된 정보를 제공하게 만들어, 사용자 경험을 획기적으로 개선합니다.
+
+검색(Retrieval)은 어시스턴트 당 하루에 GB당 $0.20의 가격으로 책정됩니다. 하나의 파일 ID를 여러 어시스턴트에 첨부하는 경우, 검색 도구가 활성화되어 있을 때 각 어시스턴트마다 하루에 대한 요금이 부과됩니다 예를 들어, 검색 도구가 활성화된 상태에서 같은 1GB 파일을 두 개의 다른 어시스턴트(예: 고객 대면 어시스턴트 #1과 내부 직원 어시스턴트 #2)에 첨부할 경우, 저장 요금으로 하루에 두 배의 비용(하루에 2 * $0.20)이 청구됩니다. 이 요금은 주어진 어시스턴트에서 지식을 검색하는 최종 사용자와 Thread의 수에 따라 달라지지 않습니다.
+
+또한, Message에 첨부된 파일은 검색 도구가 활성화된 실행의 일부로 Message에 포함되어 있을 경우 어시스턴트 기준으로 요금이 부과됩니다. 예를 들어, 검색이 활성화된 상태에서 10개의 Message가 각각 1개의 고유 파일(총 10개의 고유 파일)과 함께 있는 Thread에서 어시스턴트를 실행하면, 어시스턴트 자체에 첨부된 파일을 포함하여 모든 10개 파일에 대해 GB당 하루 요금이 부과됩니다.
+
+**3) 기능 호출(Function Calling)**
+챗 완성(Chat Completions) API와 유사하게, Assistants API는 기능 호출을 지원합니다. 기능 호출을 통해 어시스턴트에게 함수를 설명하고, 필요한 함수와 그 인자들을 지능적으로 반환하도록 할 수 있습니다. 어시스턴트 API는 함수를 호출할 때 '실행(Run)' 중에 실행을 일시 중단하며, 함수 호출의 결과를 제공하여 '실행(Run)'의 진행을 계속할 수 있습니다.
+
+이 기능은 개발자가 어시스턴트에게 특정 작업을 수행하도록 지시할 때 유용합니다. 예를 들어, 사용자가 데이터 처리를 요청할 경우, 어시스턴트는 해당 데이터 처리에 필요한 함수를 호출하고, 필요한 인자를 함께 제공하여 결과를 도출합니다. 이후, 그 결과를 실행 흐름에 다시 통합하여 사용자에게 최종 출력을 제공합니다.
